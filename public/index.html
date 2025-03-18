@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinos de la Bodega</title>
+    <style>
+        body {
+          margin: 20px;
+        }
+        h1 {
+          text-align: center;
+        }
+        table {
+          width: 100%;
+          margin: 20px 0;
+        }
+        th, td {
+          padding: 12px;
+          text-align: left;
+          border-bottom: 1px solid black;
+        }
+
+        img {
+            width: 100px;
+            height: auto;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>Vinos de la Bodega</h1>
+    <table id="tablaVinos">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Año</th>
+                <th>Tipo</th>
+                <th>Precio</th>
+                <th>Imagen</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aqui se insertaran los vinos -->
+        </tbody>
+    </table>
+
+    <script>
+        fetch('/vinos')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(vino => {
+                    // Creo la fila para la tabla
+                    const tr = document.createElement("tr");
+
+                    // Nombre del vino
+                    const tdNombre = document.createElement("td");
+                    tdNombre.innerText = vino.nombre;
+                    tr.appendChild(tdNombre);
+
+                    // Año
+                    const tdAnio = document.createElement("td");
+                    tdAnio.innerText = vino.anio;
+                    tr.appendChild(tdAnio);
+
+                    // Tipo
+                    const tdTipo = document.createElement("td");
+                    tdTipo.innerText = vino.tipo;
+                    tr.appendChild(tdTipo);
+
+                    // Precio
+                    const tdPrecio = document.createElement("td");
+                    tdPrecio.innerText = `${vino.precio} €`;
+                    tr.appendChild(tdPrecio);
+
+                    // Imagen
+                    const tdImagen = document.createElement("td");
+                    const img = document.createElement("img");
+                    img.src = "https://placehold.co/100";
+                    tdImagen.appendChild(img);
+                    tr.appendChild(tdImagen);
+
+                    // Agrego la fila a la tabla
+                    document.querySelector("#tablaVinos tbody").appendChild(tr);
+                });
+            })
+            .catch(error => console.log(error));
+    </script>
+</body>
+
+</html>
