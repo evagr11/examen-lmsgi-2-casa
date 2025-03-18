@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vino</title>
+    <style>
+        body {
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid black;
+        }
+
+        img {
+            width: 100px;
+            height: auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Detalles del Vino</h1>
+    <table id="tablaVino">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Año</th>
+                <th>Tipo</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Imagen</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aquí se insertarán los vinos -->
+        </tbody>
+    </table>
+
+
+    <script>
+        let id = 1; 
+
+        fetch(`/vinos/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            
+            const tr = document.createElement("tr");
+
+            const tdNombre = document.createElement("td");
+            tdNombre.innerText = data.nombre;
+            tr.appendChild(tdNombre);
+
+            const tdAnio = document.createElement("td");
+            tdAnio.innerText = data.anio;
+            tr.appendChild(tdAnio);
+
+            const tdTipo = document.createElement("td");
+            tdTipo.innerText = data.tipo;
+            tr.appendChild(tdTipo);
+
+            const tdPrecio = document.createElement("td");
+            tdPrecio.innerText = `${data.precio} €`;
+            tr.appendChild(tdPrecio);
+
+            const tdStock = document.createElement("td");
+            tdStock.innerText = data.stock;
+            tr.appendChild(tdStock);
+
+            const tdImagen = document.createElement("td");
+            const img = document.createElement("img");
+            img.src = "https://placehold.co/100";
+            tdImagen.appendChild(img);
+            tr.appendChild(tdImagen);
+        
+            const tbody = document.querySelector("#tablaVino tbody");
+            tbody.appendChild(tr);
+    })
+    .catch(error => console.log(error))
+
+        fetch(`/cata/${id}`)
+        .then(response => response.json())
+        .then(data => {
+                console.log(data)
+
+                const h1 = document.createElement("h1")
+                h1.innerText = "Detalles sobre la cata"
+                document.body.appendChild(h1)
+
+                const pNota = document.createElement("p")
+                pNota.innerText = `Nota: ${data.nota}`
+                document.body.appendChild(pNota)
+
+                const pComentario = document.createElement("p")
+                pComentario.innerText = `Comentario: ${data.comentario}`
+                document.body.appendChild(pComentario)
+
+        })
+        .catch(error => console.log(error))
+    </script>
+</body>
+</html>
