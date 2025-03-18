@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Información de la Bodega</title>
+    <style>
+        body {
+          margin: 20px;
+        }
+        h1 {
+          text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+        }
+
+        canvas {
+            width: 400px;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado de la Bodega -->
+    <header>
+        <h1>Administrador de la Bodega</h1>
+    </header>
+
+    <!-- Sección de Vinos -->
+    <section id="vinos">
+        <h2>Vinos de la Bodega</h2>
+        <div id="tabla-vinos"></div>
+    </section>
+
+    <!-- Sección de Notas de las Catas -->
+    <section id="catas">
+        <h2>Notas de las Catas</h2>
+        <div id="tabla-catas"></div>
+        <div id="catas-chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+    </section>
+
+    <!-- Sección de Gráfico de Stock de Vinos -->
+    <section id="stock">
+        <div class="chart-container">
+            <div>
+                <h2>Gráfico de Stock de Vinos</h2>
+                <canvas id="stockChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let nota10 = 0, nota9 = 0, nota8 = 0, nota7 = 0, nota6 = 0, nota5 = 0, nota4 = 0, nota3 = 0, nota2 = 0, nota1 = 0, nota0 = 0;
+        let vinosData = [];
+        let catasData = [];
+
+        // Obtener información de los vinos y las catas
+        fetch('/vinos')
+        .then(response => response.json())
+        .then(data => {
+            vinosData = data;
+            generarTablaVinos(vinosData);
+            generarStockChart(vinosData);
+        })
+        .catch(error => console.log(error));
+
+        fetch('/cata')
+        .then(response => response.json())
+        .then(data => {
+            catasData = data;
+            data.forEach(object => {
+                if (object.nota === 10) nota10++;
+                if (object.nota === 9) nota9++;
+                if (object.nota === 8) nota8++;
+                if (object.nota === 7) nota7++;
+                if (object.nota === 6) nota6++;
+                if (object.nota === 5) nota5++;
+                if (object.nota === 4) nota4++;
+                if (object.nota === 3) nota3++;
+                if (object.nota === 2) nota2++;
+                if (object.nota === 1) nota1++;
+                if (object.nota === 0) nota0++;
+            });
+            generarTablaCatas(catasData);
+            generarCatasChart();
+        })
+        .catch(error => console.log(error));
+
+        // Función para generar la tabla de vinos
+        function generarTablaVinos(array) {
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    table.appendChild(thead);
+    const tr = document.createElement("tr");
+    thead.appendChild(tr);
+
+    // Agregar columnas personalizadas
+    const thId = document.createElement("th");
+    thId.innerText = "ID Vino";
+    tr.appendChild(thId);
+
+    const thNombre = document.createElement("th");
+    thNombre.innerText = "Nombre";
+    tr.appendChild(thNombre);
+
+    const thTipo = document.createElement("th");
+    thTipo.innerText = "Tipo";
+    tr.appendChild(thTipo);
+
+    const thAnio = document.createElement("th");
+    thAnio.innerText = "Año";
+    tr.appendChild(thAnio);
+
+    const thRegion = document.createElement("th");
+    thRegion.innerText = "Región";
+    tr.appendChild(thRegion);
+
+    const thBodega = document.createElement("th");
+    thBodega.innerText = "Bodega";
+    tr.appendChild(thBodega);
+
+    const thGraduacion = document.createElement("th");
+    thGraduacion.innerText = "Graduación";
+    tr.appendChild(thGraduacion);
+
+    const thStock = document.createElement("th");
+    thStock.innerText = "Stock";
+    tr.appendChild(thStock);
+
+    const thPrecio = document.createElement("th");
+    thPrecio.innerText = "Precio";
+    tr.appendChild(thPrecio);
+
+    const thImagen = document.createElement("th");
+    thImagen.innerText = "Imagen";
+    tr.appendChild(thImagen);
+
+    const tbody = document.createElement("tbody");
+    table.appendChild(tbody);
+
+    for (let i = 0; i < array.length; i++) {
+        const tr = document.createElement("tr");
+
+        // Condición para cambiar el color de fondo según el stock
+        if (array[i].stock > 15) {
+            tr.style.backgroundColor = "green"; // Bastante stock
+        } else if (array[i].stock <= 15 && array[i].stock > 5) {
+            tr.style.backgroundColor = "orange"; // Más o menos stock
+        } else if (array[i].stock <= 5 && array[i].stock > 0) {
+            tr.style.backgroundColor = "red"; // Poco stock
+        }
+
+        // ID del vino
+        const tdId = document.createElement("td");
+        tdId.innerText = array[i].id;
+        tr.appendChild(tdId);
+
+        // Nombre
+        const tdNombre = document.createElement("td");
+        tdNombre.innerText = array[i].nombre;
+        tr.appendChild(tdNombre);
+
+        // Tipo
+        const tdTipo = document.createElement("td");
+        tdTipo.innerText = array[i].tipo;
+        tr.appendChild(tdTipo);
+
+        // Año
+        const tdAnio = document.createElement("td");
+        tdAnio.innerText = array[i].anio;
+        tr.appendChild(tdAnio);
+
+        // Región
+        const tdRegion = document.createElement("td");
+        tdRegion.innerText = array[i].region;
+        tr.appendChild(tdRegion);
+
+        // Bodega
+        const tdBodega = document.createElement("td");
+        tdBodega.innerText = array[i].bodega;
+        tr.appendChild(tdBodega);
+
+        // Graduación
+        const tdGraduacion = document.createElement("td");
+        tdGraduacion.innerText = array[i].graduacion;
+        tr.appendChild(tdGraduacion);
+
+        // Stock
+        const tdStock = document.createElement("td");
+        tdStock.innerText = array[i].stock;
+        tr.appendChild(tdStock);
+
+        // Precio
+        const tdPrecio = document.createElement("td");
+        tdPrecio.innerText = `${array[i].precio} €`;
+        tr.appendChild(tdPrecio);
+
+        // Imagen (si existe)
+        const tdImagen = document.createElement("td");
+        if (array[i].imagen) {
+            const img = document.createElement("img");
+            img.src = "https://placehold.co/100";
+            tdImagen.appendChild(img);
+            tr.appendChild(tdImagen);
+        } else {
+            tdImagen.innerText = "No disponible";
+        }
+        tr.appendChild(tdImagen);
+
+        tbody.appendChild(tr);
+    }
+
+    document.getElementById("tabla-vinos").appendChild(table);
+}
+
+
+        // Función para generar la tabla de catas
+        function generarTablaCatas(array){
+            const table = document.createElement("table")
+            const thead = document.createElement("thead")
+            table.appendChild(thead)
+            const tr = document.createElement("tr")
+            thead.appendChild(tr)
+
+            // Agregar columnas personalizadas para ID Cata y ID Vino
+            const thIdCata = document.createElement("th");
+            thIdCata.innerText = "ID Cata";
+            tr.appendChild(thIdCata);
+
+            const thIdVino = document.createElement("th");
+            thIdVino.innerText = "ID Vino";
+            tr.appendChild(thIdVino);
+
+            const thNota = document.createElement("th");
+            thNota.innerText = "Nota";
+            tr.appendChild(thNota);
+
+            const thComentario = document.createElement("th");
+            thComentario.innerText = "Comentario";
+            tr.appendChild(thComentario);
+
+            const tbody = document.createElement("tbody")
+            table.appendChild(tbody)
+
+            for (let i = 0; i < array.length; i++) {
+                const tr = document.createElement("tr");
+
+                // ID Cata
+                const tdIdCata = document.createElement("td");
+                tdIdCata.innerText = array[i].id;
+                tr.appendChild(tdIdCata);
+
+                // ID Vino
+                const tdIdVino = document.createElement("td");
+                tdIdVino.innerText = array[i].id_vino;
+                tr.appendChild(tdIdVino);
+
+                // Nota
+                const tdNota = document.createElement("td");
+                tdNota.innerText = array[i].nota;
+                tr.appendChild(tdNota);
+
+                // Comentario
+                const tdComentario = document.createElement("td");
+                tdComentario.innerText = array[i].comentario;
+                tr.appendChild(tdComentario);
+
+                tbody.appendChild(tr)
+            }
+
+            document.getElementById("tabla-catas").appendChild(table);
+        }
+
+        // Función para generar el gráfico de catas
+        function generarCatasChart() {
+            const ctx = document.getElementById('myChart');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['10', '9', '8', '7', '6', '5', '4', '3', '2', '1', '0'],
+                    datasets: [{
+                        label: 'Notas de Catas',
+                        data: [nota10, nota9, nota8, nota7, nota6, nota5, nota4, nota3, nota2, nota1, nota0],
+                        backgroundColor: ['#E60E8F'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para generar el gráfico de stock de vinos
+        function generarStockChart(vinosData) {
+            const stockData = vinosData.map(vino => vino.stock);
+            const labels = vinosData.map(vino => vino.nombre);
+
+            const ctx = document.getElementById('stockChart');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Stock de Vinos',
+                        data: stockData,
+                        backgroundColor: ['#95cef5', '#f2d388', '#f59682', '#a3e6a6', '#bd87d4'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ": " + tooltipItem.raw + " unidades";
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
